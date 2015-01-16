@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+	<meta charset="sjis">
+	<title>nslookup tool</title>
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" ></script>
+	<style>
+	 form {
+	   width: 30%;
+	   margin: 10px 20px;
+	 }
+	</style>
+  </head>
+
+  <body>
+	<form method="GET" action="./nslookup.rb" >
+	  <fieldset>
+		<legend>ドメインを入力してください</legend>
+		
+		<div class="form-group">
+		  <label for="type">Type</label>
+		  <select name="type" id="type" class="form-control" >
+			<option value="a" selected >A</option>
+			<option value="txt" >TXT</option>
+		  </select>
+		</div>
+		
+		<div class="form-group">
+		  <label for="dom_list">Default List</label>
+		  <select name="dom_list" id="dom_list" class="form-control" multiple>
+			<option>trl01.muscat.cell-service.info</option>
+			<option>trl02.muscat.cell-service.info</option>
+			<option>ev1.muscat.cell-service.info</option>
+			<option>ev2.muscat.cell-service.info</option>
+			<option>rq1.muscat.cell-service.info</option>
+			<option>cd1.muscat.cell-service.info</option>
+			<option>ask1.muscat.cell-service.info</option>
+			<option>wig1.muscat.cell-service.info</option>
+		  </select>
+		  <input type="button" id="add_dom" class="btn btn-default btn-sm pull-right" value="Domainに追加" />
+		  <input type="button" id="trim_url" class="btn btn-default btn-sm pull-right" value="トリム" />
+		</div>
+		
+		<div class="form-group">
+		  <label for="domains">Domain</label>
+		  <textarea name="domains" id="domains" rows="13" class="form-control"></textarea>
+		</div>
+		
+		<button type="submit" class="btn btn-primary pull-right">送信</button>
+	  </fieldset>
+	</form>
+  </body>
+  <script>
+   //ドメインリストからテキストエリアに追加
+   $('#add_dom').click(function() {
+	   var domAry = [];
+	   var existFlg;
+	   var domLists = $('#domains').val().split("\n");
+
+	   $('#dom_list option:selected').each(function() {
+		   existFlg = ($.inArray($(this).text(), domLists) >= 0) ? true : false;
+
+		   //テキストエリアに存在していないドメインなら追加
+		   if (!existFlg) {
+			   $('#domains').val($('#domains').val() + $(this).text() + "\n");
+		   }
+	   });
+   });
+
+   //URLをトリミングしてホストドメインのみにする
+   $('#trim_url').click(function () {
+	   var urlLists = $("#domains").val().split("\n");
+
+	   $('#domains').val(""); //空にしてからトリミングしたものを追加し直す
+
+	   $.each(urlLists, function (k, v) {
+		   url = v.replace(/^https?:\/\/([\w\.\-]+)(:.*)?\/.*/g, "$1");
+
+		   $('#domains').val($('#domains').val() + url + "\n");
+	   });
+
+   });
+
+   $('[name=alphabet]').change(function() {
+	   var array = [];
+	   $('[name=alphabet] option:selected').each(function() {
+		   array.push($(this).text());
+	   });
+	   console.log(array); // 出力：["えーびーしー", "でーいーえふ"]
+   });
+  </script>
+</html>
