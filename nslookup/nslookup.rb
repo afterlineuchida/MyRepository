@@ -9,14 +9,14 @@ require 'cgi'
 def SearchIncludeDom(domain, type="txt")
 	dom_ary = []
 	dom_hash = Hash.new
-	
+
 	# nslookupコマンドの出力を整形
 	spf = `nslookup -type=#{type} #{domain}`
 	spf = spf.match(%r{text =\n\n\s+"((.|\s|\n)*)"})
-	
+
 	unless spf.nil?
 		spf = spf[1].gsub("\"", "").split("\s")
-		
+
 		# includeドメインの抽出
 		include_doms = spf.select {|txt|
 			# txt =~ %r{[include:|all]}
@@ -31,11 +31,11 @@ def SearchIncludeDom(domain, type="txt")
 		include_doms.each {|txt|
 			spf.push(txt)
 		}
-		
+
 		# spf配列の要素数分ループ
 		spf.each{|txt|
 			include_dom = txt.match(%r{include:(.+)})
-			
+
 			# includeドメインのときは再帰する
 			if include_dom
 				dom_ary.push(SearchIncludeDom(include_dom[1]))
@@ -43,13 +43,13 @@ def SearchIncludeDom(domain, type="txt")
 				dom_ary.push(txt)
 			end
 		}
-		
+
 		dom_hash[domain] = dom_ary
-		
+
 	else
 		dom_hash[domain] = dom_ary.push("txt is nothing")
 	end
-	
+
 	dom_hash
 end
 
@@ -61,7 +61,7 @@ def MakeHtmlTable(hash, idt=-1)
 	# 引数
 	# hash	: テーブルの元になるデータ
 	# idt	: 再帰時にインデントをつけるときのカウンタ
-	
+
 	idt += 1
 
 	table = ""
@@ -86,10 +86,10 @@ def MakeHtmlTable(hash, idt=-1)
 				end
 			}
 		end
-		
+
 	}
 	table << "</table>\n" if idt == 0
-	
+
 	table
 end
 
@@ -102,21 +102,21 @@ def GetARecords (domains)
 
 	domains.each {|domain|
 		a_ary = []
-		
+
 		# nslookupコマンドの出力を整形
 		a = `nslookup -type=a #{domain}`
 		a = a.split("\n\n")
 
 		#Aレコードが存在しない場合は次のドメインへ
 		next if a[1].nil?
-		
+
 		domain = a[1].split("\n").map { |arecord| arecord.strip }
 
 		domain.each { |dom|
 			d =  dom =~ %r{\s} ? dom.split("\s")[1] : dom
 			a_ary.push(d)
 		}
-		
+
 		aRecord[a_ary.shift] = a_ary
 		#pp aRecord
 		#abort
@@ -185,5 +185,5 @@ html = <<-EOF
 </body>
 </html>
 EOF
-	
+
 puts html
